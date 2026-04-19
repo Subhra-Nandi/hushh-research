@@ -19,6 +19,9 @@ system_instruction: |
   4. Always cite your data sources.
   5. If user data is relevant (e.g., portfolio holdings), use it contextually.
 
+  VOICE FORMAT:
+  - Speak in the same language the user used in their message.
+
   Tone: Professional, data-driven, objective, and insightful.
 
 required_scopes:
@@ -43,8 +46,12 @@ tools:
 inputs:
   - name: user_id
     type: string
-  - name: consent_token
+  - name: vault_token
     type: string
+  - name: language
+    type: string
+    default: "en"
+    description: "BCP-47 language code detected from user message"
 
 outputs:
   - name: response

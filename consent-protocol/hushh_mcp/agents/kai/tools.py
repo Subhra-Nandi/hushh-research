@@ -12,16 +12,18 @@ from hushh_mcp.hushh_adk.context import HushhContext
 from hushh_mcp.hushh_adk.tools import hushh_tool
 
 # Import the existing "Agents" which we are now treating as "Analysis Engines"
-# We backed them up, but we'll use the ones in the current directory as library code.
 from .fundamental_agent import fundamental_agent as fundamental_engine
 from .sentiment_agent import sentiment_agent as sentiment_engine
 from .valuation_agent import valuation_agent as valuation_engine
 
 
 @hushh_tool(scope=ConsentScope.AGENT_KAI_ANALYZE, name="perform_fundamental_analysis")
-async def perform_fundamental_analysis(ticker: str) -> Dict[str, Any]:
+async def perform_fundamental_analysis(ticker: str, language: str = "en") -> Dict[str, Any]:
     """
     Analyze business fundamentals (SEC filings, financial health, moat).
+    Args:
+        ticker: Stock ticker symbol (e.g., AAPL)
+        language: BCP-47 language code for response language (e.g., 'en', 'hi', 'fr')
     """
     ctx = HushhContext.current()
     if not ctx:
@@ -30,13 +32,12 @@ async def perform_fundamental_analysis(ticker: str) -> Dict[str, Any]:
     print(f"🔧 Tool invoked: perform_fundamental_analysis for {ticker}")
 
     # Delegate to the fundamental engine
-    # Note: The engine's analyze method is async
     try:
         insight = await fundamental_engine.analyze(
             ticker=ticker, user_id=ctx.user_id, consent_token=ctx.consent_token
         )
 
-        # Convert dataclass/result to dict
+        # Fixed indentation here
         return {
             "summary": insight.summary,
             "business_moat": insight.business_moat,
@@ -44,16 +45,20 @@ async def perform_fundamental_analysis(ticker: str) -> Dict[str, Any]:
             "recommendation": insight.recommendation,
             "confidence": insight.confidence,
             "metrics": insight.quant_metrics,
-        }
+            "language": language,
+        }    
     except Exception as e:
         return {"error": f"Fundamental analysis failed: {str(e)}"}
 
 
 @hushh_tool(scope=ConsentScope.AGENT_KAI_ANALYZE, name="perform_sentiment_analysis")
-async def perform_sentiment_analysis(ticker: str) -> Dict[str, Any]:
+async def perform_sentiment_analysis(ticker: str, language: str = "en") -> Dict[str, Any]:
     """
     Analyze market sentiment (News, Social Media, Analyst Ratings).
-    """
+    Args:
+        ticker: Stock ticker symbol (e.g., AAPL)
+        language: BCP-47 language code for response language (e.g., 'en', 'hi', 'fr')
+    """   
     ctx = HushhContext.current()
     if not ctx:
         raise PermissionError("No active context")
@@ -72,15 +77,19 @@ async def perform_sentiment_analysis(ticker: str) -> Dict[str, Any]:
             "recommendation": insight.recommendation,
             "confidence": insight.confidence,
             "news_highlights": insight.key_news[:3] if hasattr(insight, "key_news") else [],
+            "language": language,
         }
     except Exception as e:
         return {"error": f"Sentiment analysis failed: {str(e)}"}
 
 
 @hushh_tool(scope=ConsentScope.AGENT_KAI_ANALYZE, name="perform_valuation_analysis")
-async def perform_valuation_analysis(ticker: str) -> Dict[str, Any]:
+async def perform_valuation_analysis(ticker: str, language: str = "en") -> Dict[str, Any]:
     """
     Perform quantitative valuation (DCF, Multiples, Fair Value).
+    Args:
+        ticker: Stock ticker symbol (e.g., AAPL)
+        language: BCP-47 language code for response language (e.g., 'en', 'hi', 'fr')
     """
     ctx = HushhContext.current()
     if not ctx:
@@ -100,6 +109,7 @@ async def perform_valuation_analysis(ticker: str) -> Dict[str, Any]:
             "risk_assessment": insight.risk_assessment,
             "recommendation": insight.recommendation,
             "confidence": insight.confidence,
+            "language": language,
         }
     except Exception as e:
         return {"error": f"Valuation analysis failed: {str(e)}"}
