@@ -17,10 +17,10 @@ bypassing workspace gating or persona memory boundaries.
 """
 
 import os
+
 import pytest
 
 from hushh_mcp.hushh_adk.manifest import ManifestLoader
-
 
 AGENT_YAML_PATH = os.path.join(
     os.path.dirname(__file__),
